@@ -195,11 +195,19 @@ def select_option(event):
         current_page = "about"
     elif selected == 2:
         current_page = "settings"
-    elif current_page == 3:
+    elif selected == 3:
         event.app.exit()
         return
 
     event.app.invalidate()
+
+@bindings.add("escape")
+def go_back(event):
+    global current_page
+
+    if current_page != "menu":
+        current_page = "menu"
+        event.app.invalidate()
 
 application = Application(
     layout=Layout(
@@ -215,5 +223,8 @@ application = Application(
 )
 
 option = application.run()
+
+if option is None:
+    exit()
 
 console.print(f"You selected: {options[option][0]}")
