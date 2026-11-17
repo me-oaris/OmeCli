@@ -100,6 +100,7 @@ options = [
 ]
 
 selected = 0
+menu = []
 
 bindings = KeyBindings()
 
@@ -107,15 +108,46 @@ style = PTStyle.from_dict({
     "selected": "fg:#FFFFFF bg:#123D2A bold",
     "normal": "fg:#FFFFFF",
 })
-# Gotta find a way to make menu dynamic for it to work with binding
-def get_menu():
-    print("Yum!! Buttons here (Ts is ass):")
-    print(options[0][0])
-    print(options[1][0])
-    print(options[2][0])
-    print(options[3][0])
 
-#Bindings for Controls Remaining
+def get_menu():
+    print("")
+
+    for i, (name, bg, border) in enumerate(options):
+        if i == selected:
+            menu.append((
+                "class:selected",
+                f" {name} \n"
+            ))
+        else:
+            menu.append((
+                "class:normal",
+                f" {name} \n"
+            ))
+    return menu
+
+#Starting Bindings
+
+@bindings.add("up")
+def move_up(event):
+    global selected
+    if selected == 0:
+        selected = 3
+    else:
+        selected -= 1
+    event.app.invalidate()
+
+@bindings.add("down")
+def move_down(event):
+    global selected
+    if selected == 3:
+        selected = 0
+    else:
+        selected += 1
+    event.app.invalidate()
+
+@bindings.add("enter")
+def select_option(event):
+    print(options[selected][0])
 
 application = Application(
     layout=Layout(
@@ -126,7 +158,7 @@ application = Application(
     ),
     key_bindings=bindings,
     style=style,
-    full_screen=False
+    full_screen=True
 )
 
 option = application.run()
