@@ -48,12 +48,20 @@ def render_room(messages):
         expand=True,
         padding=1
     )
-        
+
+    chat_text = Text()
+
+    if messages:
+        for message in messages:
+            chat_text.append(f"You: {message}\n", style="bright_blue")
+        else:
+            chat_text.append(
+                "Your conversation will appear here...",
+                style="dim white"
+            )
+
     chat_history = Panel(
-        Text(
-            "Your conversation will appear here...",
-            style="dim white"
-        ),
+        chat_text,
         title="Conversation",
         title_align="left",
         border_style="bright_white",
