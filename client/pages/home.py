@@ -7,7 +7,8 @@ from rich import box
 
 from io import StringIO
 from prompt_toolkit.formatted_text import ANSI
-from prompt_toolkit.key_binding import KeyBindings
+
+import shutil
 
 def render_home(selected):
     # Welcome Banner Part ;-;
@@ -28,7 +29,7 @@ def render_home(selected):
         Align.right(versionText)
     )
 
-    welcomePanel = Panel(groupedWelcome, box=box.SQUARE_DOUBLE_HEAD) 
+    welcomePanel = Panel(groupedWelcome, box=box.SQUARE_DOUBLE_HEAD, expand=True) 
 
     # Buttons
 
@@ -38,42 +39,49 @@ def render_home(selected):
         border_style="bright_green",
         box=box.SQUARE_DOUBLE_HEAD,
         padding=(0,4),
-        style =Style(bgcolor="#123D2A" if selected == 0 else "#0D1117")
+        style =Style(bgcolor="#123D2A" if selected == 0 else "#0D1117"),
+        expand=True
     ),
         Panel(
         Align.center(Text("2. About OmeCli", style="bold white")),
         border_style="bright_blue",
         box=box.SQUARE_DOUBLE_HEAD,
         padding=(0,4),
-        style=Style(bgcolor="#172D4d" if selected == 1 else "#0D1117")
+        style=Style(bgcolor="#172D4d" if selected == 1 else "#0D1117"),
+        expand=True
     ),
         Panel(
             Align.center(Text("3. Settings", style="bold white")),
             border_style="bright_white",
             box=box.SQUARE_DOUBLE_HEAD,
             padding=(0,4),
-            style=Style(bgcolor="#303030" if selected == 2 else "#0D1117")
+            style=Style(bgcolor="#303030" if selected == 2 else "#0D1117"),
+            expand=True
         ),
         Panel(
             Align.center(Text("4. Quit OmeCli", style="bold white")),
             border_style="bright_red",
             box=box.SQUARE_DOUBLE_HEAD,
             padding=(0,4),
-            style=Style(bgcolor="#4A1717" if selected == 3 else "#0D1117")
+            style=Style(bgcolor="#4A1717" if selected == 3 else "#0D1117"),
+            expand=True
         )
     ] 
 
     output = StringIO()
 
+    terminalWidth = shutil.get_terminal_size().columns
+    consoleWidth = max (40, terminalWidth - 2)
     rich_console = Console(
         file=output,
         force_terminal=True,
         color_system="truecolor",
-        width=60
+        width=consoleWidth
     )
 
     rich_console.print(welcomePanel)
-
+    rich_console.print()
+    
     for button in buttons_panels:
         rich_console.print(button)
 

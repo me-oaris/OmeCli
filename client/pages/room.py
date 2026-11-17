@@ -3,10 +3,13 @@ from rich.text import Text
 from rich.align import Align
 from rich.panel import Panel
 from rich.columns import Columns
+from rich.table import Table
 from rich import box
 
 from io import StringIO
 from prompt_toolkit.formatted_text import ANSI
+
+import shutil
 
 def render_room(messages):
 
@@ -28,7 +31,8 @@ def render_room(messages):
         title="You",
         border_style="bright_blue",
         box=box.SQUARE,
-        height=12
+        height=16,
+        expand=True
     )
 
     stranger = Panel(
@@ -39,20 +43,25 @@ def render_room(messages):
         title="Stranger",
         border_style="bright_green",
         box=box.SQUARE,
-        height=12
+        height=16,
+        expand=True
     )
 
-    video_containers = Columns(
-        [you, stranger],
-        equal=True,
-        expand=True,
-        padding=1
-    )
+    terminalWidth = shutil.get_terminal_size().columns
+    consoleWidth = max(40, terminalWidth - 2)
+    leftWidth = consoleWidth // 2
+    rightWidth = consoleWidth - leftWidth
+
+    video_table = Table.grid(expand=True)
+    video_table.add_column(width=leftWidth)
+    video_table.add_column(width=rightWidth)
+    video_table.add_row(you, stranger)
 
     chat_text = Text()
 
     if messages:
-        for message in messages[-6:]:
+        maxMessages = 3
+        for message in messages[-maxMessages:]:
             chat_text.append(f"You: {message}\n", style="bright_blue")
     else:
         chat_text.append(
@@ -66,8 +75,9 @@ def render_room(messages):
         title_align="left",
         border_style="bright_white",
         box=box.SQUARE,
-        height=12,
-        padding=(1,2)
+        height=7,
+        padding=(1,2),
+        expand=True
     )
 
     output = StringIO()
@@ -76,12 +86,12 @@ def render_room(messages):
         file=output,
         force_terminal=True,
         color_system="truecolor",
-        width=60
+        width=consoleWidth
     )
 
     rich_console.print(header)
     rich_console.print()
-    rich_console.print(video_containers)
+    rich_console.print(video_table)
     rich_console.print(chat_history)
 
     return ANSI(output.getvalue())
