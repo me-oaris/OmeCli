@@ -24,8 +24,15 @@ style = PTStyle.from_dict({
 })   
 
 selected = 0
+selectedSetting = 0
 current_page = "menu"
 messages = []
+
+appSettings = {
+    "theme": "Dark Mode",
+    "anon_display": True,
+    "save_history": False
+}
 
 def send_message(buffer):
     message = buffer.text.strip()
@@ -51,40 +58,51 @@ def get_page():
     elif current_page == "about":
         return render_about()
     elif current_page == "settings":
-        return render_settings()
+        return render_settings(selectedSetting, appSettings)
 
 @bindings.add("up")
 def move_up(event):
-    global selected
-    if selected == 0:
-        selected = 3
-    else:
-        selected -= 1
+    global selected, selectedSetting
+    if current_page == "menu":
+        selected = 3 if selected == 0 else selected - 1
+    elif current_page == "settings":
+        selectedSetting = 3 if selectedSetting == 0 else selectedSetting - 1
     event.app.invalidate()
 
 @bindings.add("down")
 def move_down(event):
-    global selected
-    if selected == 3:
-        selected = 0
-    else:
-        selected += 1
+    global selected, selectedSetting
+    if current_page == "menu":
+        selected = 0 if selected == 3 else selected + 1
+    elif current_page == "settings":
+        selectedSetting = 0 if selectedSetting == 3 else selectedSetting + 1
     event.app.invalidate()
 
-@bindings.add(
-        "enter",
-        filter=Condition(lambda: current_page == "menu"))
-def select_page(event):
-    global current_page
-    if selected == 0:
-        current_page = "room"
-    elif selected == 1:
-        current_page = "about"
-    elif selected == 2:
-        current_page = "settings"
-    elif selected == 3:
-        event.app.exit()
-        return
+@bindings.add("enter",
+              filter=Condition(lambda: current_page in ("menu", "settings"))
+)
+def handle_enter(event):
+    global current_page, selectedSetting
+    if current_page == "menu":
+        if selected == 0:
+            current_page = "room"
+        elif selected == 1:
+            current_page = "about"
+        elif selected == 2:
+            selectedSetting = 0
+            current_page = "settings"
+        elif selected == 3:
+            event.app.exit()
+            return
+    elif current_page == "settings":
+        if selectedSetting == 0:
+            appSettings["theme"] = "Cyber Green" if appSettings['theme'] == "Dark Mode" else 'Dark Mode'
+        elif selectedSetting == 1:
+            appSettings['anon_display'] = not appSettings['anon_display']
+        elif selectedSetting == 2:
+            appSettings['save_history'] = not appSettings['save_history']
+        elif selectedSetting == 3:
+            current_page = "menu"
     event.app.invalidate()
 
 @bindings.add("escape")
