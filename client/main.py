@@ -1,5 +1,6 @@
 from pages.home import render_home
 from pages.room import render_room
+from pages.about import render_about
 from rich.console import Console
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
@@ -47,7 +48,7 @@ def get_page():
     elif current_page == "room":
         return render_room(messages)
     elif current_page == "about":
-        return ANSI("About OmeCli")
+        return render_about()
     elif current_page == "settings":
         return ANSI("Settings")
 
