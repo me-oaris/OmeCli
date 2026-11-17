@@ -15,9 +15,9 @@ def render_room(messages):
     headerRight = Text()
     headerRight.append("Anonymous Talk", style="dim white")
 
-    header = Group(
-        Align.left(headerLeft),
-        Align.right(headerRight)
+    header = Columns(
+        [headerLeft,headerRight],
+        expand=True
     )
 
     you = Panel(
@@ -28,7 +28,7 @@ def render_room(messages):
         title="You",
         border_style="bright_blue",
         box=box.SQUARE,
-        height=15
+        height=12
     )
 
     stranger = Panel(
@@ -39,7 +39,7 @@ def render_room(messages):
         title="Stranger",
         border_style="bright_green",
         box=box.SQUARE,
-        height=15
+        height=12
     )
 
     video_containers = Columns(
@@ -52,13 +52,13 @@ def render_room(messages):
     chat_text = Text()
 
     if messages:
-        for message in messages:
+        for message in messages[-6:]:
             chat_text.append(f"You: {message}\n", style="bright_blue")
-        else:
-            chat_text.append(
-                "Your conversation will appear here...",
-                style="dim white"
-            )
+    else:
+        chat_text.append(
+            "Your conversation will appear here...",
+            style="dim white"
+        )
 
     chat_history = Panel(
         chat_text,
@@ -80,6 +80,7 @@ def render_room(messages):
     )
 
     rich_console.print(header)
+    rich_console.print()
     rich_console.print(video_containers)
     rich_console.print(chat_history)
 
