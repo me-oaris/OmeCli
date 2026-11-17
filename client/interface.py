@@ -4,13 +4,14 @@ from rich.align import Align
 from rich.panel import Panel
 from rich.style import Style
 from rich import box
-
+from io import StringIO
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout
 from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.styles import Style as PTStyle
+from prompt_toolkit.formatted_text import ANSI
 
 console = Console()
 
@@ -100,7 +101,7 @@ options = [
 ]
 
 selected = 0
-menu = []
+current_page = "menu"
 
 bindings = KeyBindings()
 
@@ -110,20 +111,59 @@ style = PTStyle.from_dict({
 })
 
 def get_menu():
-    print("")
+    if current_page == "room":
+        return ANSI("\033[2J\033[HFind a Stranger")
+    elif current_page == "about":
+        return ANSI("\033[2J\033[HAbout OmeCli")
+    elif current_page == "settings":
+        return ANSI("\033[2J\033[HSettings")
+    
+    output = StringIO()
 
-    for i, (name, bg, border) in enumerate(options):
-        if i == selected:
-            menu.append((
-                "class:selected",
-                f" {name} \n"
-            ))
-        else:
-            menu.append((
-                "class:normal",
-                f" {name} \n"
-            ))
-    return menu
+    rich_Console = Console(
+        file=output,
+        force_terminal=True,
+        color_system="truecolor",
+        width=60   
+        )
+
+    rich_Console.print(welcomePanel)
+
+    buttons_panels = [
+        Panel(
+            Align.center(Text("1. Find a Stranger", style="bold white")),
+            border_style="bright_green",
+            box=box.SQUARE_DOUBLE_HEAD,
+            padding=(0,4),
+            style=Style(bgcolor="#123D2A" if selected == 0 else "#0D1117")
+        ),
+        Panel(
+            Align.center(Text("2. About OmeCli", style="bold white")),
+            border_style="bright_blue",
+            box=box.SQUARE_DOUBLE_HEAD,
+            padding=(0,4),
+            style=Style(bgcolor="#172D4d" if selected == 1 else "#0D1117")
+        ),
+        Panel(
+            Align.center(Text("3. Settings", style="bold white")),
+            border_style="bright_white",
+            box=box.SQUARE_DOUBLE_HEAD,
+            padding=(0,4),
+            style=Style(bgcolor="#303030" if selected == 2 else "#0D1117")
+        ),
+        Panel(
+            Align.center(Text("4. Quit OmeCli", style="bold white")),
+            border_style="bright_red",
+            box=box.SQUARE_DOUBLE_HEAD,
+            padding=(0,4),
+            style=Style(bgcolor="#4A1717" if selected == 3 else "#0D1117")
+        )
+    ]
+
+    for button in buttons_panels:
+        rich_Console.print(button)
+
+    return ANSI(output.getvalue())
 
 #Starting Bindings
 
@@ -147,7 +187,19 @@ def move_down(event):
 
 @bindings.add("enter")
 def select_option(event):
-    print(options[selected][0])
+    global current_page
+
+    if selected == 0:
+        current_page = "room"
+    elif selected == 1:
+        current_page = "about"
+    elif selected == 2:
+        current_page = "settings"
+    elif current_page == 3:
+        event.app.exit()
+        return
+
+    event.app.invalidate()
 
 application = Application(
     layout=Layout(
@@ -158,7 +210,8 @@ application = Application(
     ),
     key_bindings=bindings,
     style=style,
-    full_screen=True
+    full_screen=True,
+    erase_when_done=True
 )
 
 option = application.run()
