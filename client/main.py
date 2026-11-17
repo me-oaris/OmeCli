@@ -1,6 +1,7 @@
 from pages.home import render_home
 from pages.room import render_room
 from pages.about import render_about
+from pages.settings import render_settings
 from rich.console import Console
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
@@ -50,7 +51,7 @@ def get_page():
     elif current_page == "about":
         return render_about()
     elif current_page == "settings":
-        return ANSI("Settings")
+        return render_settings()
 
 @bindings.add("up")
 def move_up(event):
