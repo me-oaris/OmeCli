@@ -5,6 +5,13 @@ from rich.panel import Panel
 from rich.style import Style
 from rich import box
 
+from prompt_toolkit import Application
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.layout.containers import Window
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.styles import Style as PTStyle
+
 console = Console()
 
 logs = Text()
@@ -38,7 +45,7 @@ centeredText = Group(
 
 welcomePanel = Panel(centeredText,box=box.SQUARE_DOUBLE_HEAD)
 
-console.print(welcomePanel)
+#console.print(welcomePanel)
 
 findButton = Panel(
     Align.center(
@@ -83,4 +90,45 @@ buttons = Group(
     quitButton
 )
 
-console.print(buttons)
+# console.print(buttons)
+
+options = [
+    ("1. Find a Stranger", "#123D2A", "bright_green"),
+    ("2. About OmeCli", "#172D4D", "bright_blue"),
+    ("3. Settings", "#303030", "bright_white"),
+    ("4. Quit OmeCli", "#4A1717", "bright_red")
+]
+
+selected = 0
+
+bindings = KeyBindings()
+
+style = PTStyle.from_dict({
+    "selected": "fg:#FFFFFF bg:#123D2A bold",
+    "normal": "fg:#FFFFFF",
+})
+# Gotta find a way to make menu dynamic for it to work with binding
+def get_menu():
+    print("Yum!! Buttons here (Ts is ass):")
+    print(options[0][0])
+    print(options[1][0])
+    print(options[2][0])
+    print(options[3][0])
+
+#Bindings for Controls Remaining
+
+application = Application(
+    layout=Layout(
+        Window(
+            FormattedTextControl(get_menu),
+            dont_extend_height=True
+        )
+    ),
+    key_bindings=bindings,
+    style=style,
+    full_screen=False
+)
+
+option = application.run()
+
+console.print(f"You selected: {options[option][0]}")
