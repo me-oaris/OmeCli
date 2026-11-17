@@ -10,13 +10,13 @@ import shutil
 from io import StringIO
 from prompt_toolkit.formatted_text import ANSI
 
-def render_settings(selectedSetting=0):
+def render_settings(selectedSetting, settings):
     titleText = Text("OmeCli Settings", style="bold yellow")
 
     options = [
-        "Theme: Dark Mode",
-        "Anonymous Mode: Enabled",
-        "Save Chat History: Off",
+        f"Theme: {settings['theme']}",
+        f"Anonymous Mode: {'Enabled' if settings['anon_display'] else 'Disabled'}",
+        f"Save Chat History: {'On' if settings['save_history'] else 'Off'}",
         "Back to Main Menu"
     ]
 

@@ -37,7 +37,7 @@ def render_room(messages):
 
     stranger = Panel(
         Align.center(
-            Text("Stranger. ..", style="dim white"),
+            Text("Stranger...", style="dim white"),
             vertical = "middle"
         ),
         title="Stranger",
