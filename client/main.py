@@ -18,6 +18,7 @@ import shutil
 import asyncio
 import websockets
 import json
+import datetime
 
 apiUrl = "ws://localhost:8765"
 
@@ -105,6 +106,30 @@ def send_message(buffer):
     buffer.text = ""
     app.invalidate()
 
+def getDynamicStyle():
+    if appSettings.get("theme") == "Cyber Green":
+        return PTStyle.from_dict({
+            "selected" : "fg:#000000 bg:#00FF66 bold",
+            "normal" : "fg:#00FF66"
+        })
+    else:
+        return PTStyle.from_dict({
+            "selected" : "fg:#FFFFFF bg:#123D2A bold",
+            "normal" : "fg:#FFFFFF"
+        })
+
+def saveChatHistory():
+    if appSettings.get("save_history") and messages:
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f"chat_history_{timestamp}.txt"
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write("\n".join(messages))
+            messages.append(f"History saved to {filename}")
+        except Exception:
+            pass
+    
+
 message_input = TextArea(
     height=1,
     prompt="You: ",
@@ -116,7 +141,7 @@ message_input = TextArea(
 
 def get_page():
     if current_page == "menu":  
-        return render_home(selected)
+        return render_home(selected, appSettings)
     elif current_page == "room":
         terminalWidth = shutil.get_terminal_size().columns
         panelInnerWidth = max(20, ((terminalWidth - 2) // 2) - 6)
@@ -168,6 +193,7 @@ def handle_enter(event):
     elif current_page == "settings":
         if selectedSetting == 0:
             appSettings["theme"] = "Cyber Green" if appSettings['theme'] == "Dark Mode" else 'Dark Mode'
+            app.style = getDynamicStyle()
         elif selectedSetting == 1:
             appSettings['anon_display'] = not appSettings['anon_display']
         elif selectedSetting == 2:
@@ -181,6 +207,7 @@ def go_back(event):
     global current_page, websocketConnection
     if current_page != "menu":
         if current_page == "room":
+            saveChatHistory()
             videoEngine.stop()
             if websocketConnection:
                 asyncio.create_task(websocketConnection.close())

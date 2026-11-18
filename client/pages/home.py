@@ -10,7 +10,14 @@ from prompt_toolkit.formatted_text import ANSI
 
 import shutil
 
-def render_home(selected):
+def render_home(selected, appSettings=None):
+    if appSettings is None:
+        appSettings = {"theme":"Dark Mode"}
+    isCyber = appSettings.get("theme") ==  "Cyber Green"
+
+    bannerColor = "bright_green" if isCyber else "bright_cyan"
+    selectedBg = "#047230" if isCyber else "#123D2A"
+    selectedFg = "#000000" if isCyber else "#FFFFFF"
     # Welcome Banner Part ;-;
     welcomeText = Text()
     versionText = Text()
@@ -21,7 +28,7 @@ def render_home(selected):
 ▄███████▄ ████▄  ▄████ ███▀▀▀▀▀ ███▀▀▀▀▀ ███       ███  
 ███   ███ ███▀████▀███ ███▄▄    ███      ███       ███  
 ███▄▄▄███ ███  ▀▀  ███ ███      ███      ███       ███  
- ▀█████▀  ███      ███ ▀███████ ▀███████ ████████ ▄███▄ """,style="bold cyan")
+ ▀█████▀  ███      ███ ▀███████ ▀███████ ████████ ▄███▄ """,style=bannerColor)
     versionText.append("Version 0.0.1", style="dim italic white")
 
     groupedWelcome = Group(
@@ -39,7 +46,7 @@ def render_home(selected):
         border_style="bright_green",
         box=box.SQUARE_DOUBLE_HEAD,
         padding=(0,4),
-        style =Style(bgcolor="#123D2A" if selected == 0 else "#0D1117"),
+        style =Style(bgcolor=selectedBg if selected == 0 else "#0D1117", color=selectedFg if selected == 0 else "white"),
         expand=True
     ),
         Panel(
@@ -47,7 +54,7 @@ def render_home(selected):
         border_style="bright_blue",
         box=box.SQUARE_DOUBLE_HEAD,
         padding=(0,4),
-        style=Style(bgcolor="#172D4d" if selected == 1 else "#0D1117"),
+        style=Style(bgcolor=selectedBg if selected == 1 else "#0D1117", color=selectedFg if selected == 1 else "white"),
         expand=True
     ),
         Panel(
@@ -55,7 +62,7 @@ def render_home(selected):
             border_style="bright_white",
             box=box.SQUARE_DOUBLE_HEAD,
             padding=(0,4),
-            style=Style(bgcolor="#303030" if selected == 2 else "#0D1117"),
+            style=Style(bgcolor=selectedBg if selected == 2 else "#0D1117", color=selectedFg if selected == 2 else "white"),
             expand=True
         ),
         Panel(
@@ -63,7 +70,7 @@ def render_home(selected):
             border_style="bright_red",
             box=box.SQUARE_DOUBLE_HEAD,
             padding=(0,4),
-            style=Style(bgcolor="#4A1717" if selected == 3 else "#0D1117"),
+            style=Style(bgcolor=selectedBg if selected == 3 else "#0D1117", color=selectedFg if selected == 3 else "white"),
             expand=True
         )
     ] 
