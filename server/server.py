@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import json
 
-waitingClient = None
+waitingClient = set()
 pairs = {}
 
 async def handler(websocket):
@@ -12,35 +12,37 @@ async def handler(websocket):
     try:
         while True:
             if websocket not in pairs:
-                if waitingClient is None:
-                    waitingClient = websocket
+                if websocket not in waitingClient:
+                    waitingClient.add(websocket)
                     await websocket.send(json.dumps({
                         "type" : "status",
                         "message" : "Searching for stranger..."
                     }))
 
-                    while waitingClient == websocket and websocket not in pairs:
-                        await asyncio.sleep(0.5)
+                while websocket not in pairs:
+                    otherClients = [c for c in waitingClient if c != websocket and c.close_code is None]
 
-                elif waitingClient == websocket:
+                    if otherClients:
+                        peer = otherClients[0]
+
+                        waitingClient.discard(websocket)
+                        waitingClient.discard(peer)
+
+                        pairs[websocket] = peer
+                        pairs[peer] = websocket
+
+                        await websocket.send(json.dumps({
+                            "type" : "status",
+                            "message" : "Connected to a stranger!"
+                        }))
+
+                        await peer.send(json.dumps({
+                            "type" : "status",
+                            "message" : "Connected to a stranger!"
+                        }))
+                        break
+
                     await asyncio.sleep(0.5)
-                else:
-                    peer = waitingClient
-                    waitingClient = None
-
-                    pairs[websocket] = peer
-                    pairs[peer] = websocket
-
-                    await websocket.send(json.dumps({
-                        "type" : "status",
-                        "message" : "Connected to a stranger!"
-                    }))
-
-                    await peer.send(json.dumps({
-                        "type" : "status",
-                        "message" : "Connected to a stranger!"
-                    }))
-
                 peerSocket = pairs.get(websocket)
                 if peerSocket:
                     try:
@@ -60,22 +62,17 @@ async def handler(websocket):
                                         "type" : "video",
                                         "frame" : data.get("frame")
                                     }))
-                                
                             elif msgType == "skip":
-                                pairs.pop(websocket, None)
+                                pairs.pop(websocket,None)
                                 if peerSocket in pairs:
                                     pairs.pop(peerSocket, None)
+                                    waitingClient.add(peerSocket)
                                     await peerSocket.send(json.dumps({
                                         "type" : "status",
-                                        "message" : "Stranger has disconnected. Finding a new stranger..."
-                                    }))
-                                    waitingClient = peerSocket
-                                    await peerSocket.send(json.dumps({
-                                        "type" : "status",
-                                        "message" : "Searching for a stranger..."
+                                        "message" : "Stranger has discontinued. Finding a new stranger..."
                                     }))
 
-                                waitingClient = websocket
+                                waitingClient.add(websocket)
                                 await websocket.send(json.dumps({
                                     "type" : "status",
                                     "message" : "Searching for a stranger..."
@@ -85,15 +82,14 @@ async def handler(websocket):
                         break
 
     except websockets.exceptions.ConnectionClosed:
-        print(f"Client disconnected: {websocket.remote_address}")
+        print(f"Cleint Disconnected: {websocket.remote_address}")
     finally:
-        if waitingClient == websocket:
-            waitingClient = None
+        waitingClient.discard(websocket)
 
         peerSocket = pairs.pop(websocket, None)
         if peerSocket:
             pairs.pop(peerSocket, None)
-            waitingClient = peerSocket
+            waitingClient.add(peerSocket)
             try:
                 await peerSocket.send(json.dumps({
                     "type" : "status",
@@ -105,12 +101,14 @@ async def handler(websocket):
                 }))
             except:
                 pass
-        print(f"Initilized websock for {websocket.remote_address}")
+
+        print(f"Cleaned up connection for {websocket.remote_address}")
 
 async def main():
-    async with websockets.serve(handler, "localhost", 8765):
-        print("Websocket Online, `ws://localhost:8765`")
+    async with websockets.serve(handler, "0.0.0.0", 8765, ping_interval=5, ping_timeout=5):
+        print("Websocket Online, `ws://0.0.0.0:8765`")
         await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
+                
