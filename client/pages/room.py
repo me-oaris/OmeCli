@@ -11,8 +11,7 @@ from prompt_toolkit.formatted_text import ANSI
 
 import shutil
 
-def render_room(messages, yourFrame="Starting Camera.."):
-
+def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting for stranger..."):
     headerLeft = Text()
     headerLeft.append("OMECLI", style="bold white")
     headerRight = Text()
@@ -37,9 +36,10 @@ def render_room(messages, yourFrame="Starting Camera.."):
         expand=True
     )
 
+    strangerContent = Text(strangerFrame, style="bright_green")
     stranger = Panel(
         Align.center(
-            Text("Stranger...", style="dim white"),
+            strangerContent,
             vertical = "middle"
         ),
         title="Stranger",
@@ -64,7 +64,7 @@ def render_room(messages, yourFrame="Starting Camera.."):
     if messages:
         maxMessages = 3
         for message in messages[-maxMessages:]:
-            chat_text.append(f"You: {message}\n", style="bright_blue")
+            chat_text.append(f"{message}\n", style="bright_blue")
     else:
         chat_text.append(
             "Your conversation will appear here...",

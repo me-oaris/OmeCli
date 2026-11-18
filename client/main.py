@@ -36,6 +36,7 @@ selectedSetting = 0
 current_page = "menu"
 messages = []
 websocketConnection = None
+strangerFrame = "Waiting for stranger video..."
 
 appSettings = {
     "theme": "Dark Mode",
@@ -44,7 +45,7 @@ appSettings = {
 }
 
 async def connectToServer():
-    global websocketConnection
+    global websocketConnection, strangerFrame
     try:
         async with websockets.connect(apiUrl) as websocket:
             websocketConnection = websocket
@@ -57,13 +58,32 @@ async def connectToServer():
                 if msgType == "status":
                     messages.append(data.get("message"))
                 elif msgType == "message":
-                    messages.append(f"Stranger: {data.get("text")}")
+                    messages.append(f"Stranger: {data.get('text')}")
+                elif msgType == "video":
+                    strangerFrame = data.get("frame", "")
                 app.invalidate()
 
     except (websockets.exceptions.ConnectionClosed, ConnectionRefusedError):
         messages.append("Connection to server lost")
         websocketConnection = None
         app.invalidate()
+
+async def videoStreamLoop():
+    global websocketConnection
+    while True:
+        if current_page == "room" and websocketConnection:
+            try:
+                terminalWidth = shutil.get_terminal_size().columns
+                panelInnerWidth = max(20, ((terminalWidth - 2) // 2) - 6)
+                frame = videoEngine.get_ascii_frame(targetWidth=panelInnerWidth)
+
+                await websocketConnection.send(json.dumps({
+                    "type" : "video",
+                    "frame" : frame
+                }))
+            except Exception:
+                pass
+        await asyncio.sleep(1 / 15)
 
 def send_message(buffer):
     global websocketConnection
@@ -76,7 +96,7 @@ def send_message(buffer):
                     "type" : "skip"
                 })))
         else:
-            messages.append(f"{text}")
+            messages.append(f"You: {text}")
             if websocketConnection:
                 asyncio.create_task(websocketConnection.send(json.dumps({
                     "type" : "message",
@@ -100,8 +120,8 @@ def get_page():
     elif current_page == "room":
         terminalWidth = shutil.get_terminal_size().columns
         panelInnerWidth = max(20, ((terminalWidth - 2) // 2) - 6)
-        frame = videoEngine.get_ascii_frame(targetWidth=panelInnerWidth)
-        return render_room(messages, yourFrame=frame)
+        yourframe = videoEngine.get_ascii_frame(targetWidth=panelInnerWidth)
+        return render_room(messages, yourFrame=yourframe, strangerFrame=strangerFrame)
     elif current_page == "about":
         return render_about()
     elif current_page == "settings":
@@ -158,7 +178,7 @@ def handle_enter(event):
 
 @bindings.add("escape")
 def go_back(event):
-    global current_page
+    global current_page, websocketConnection
     if current_page != "menu":
         if current_page == "room":
             videoEngine.stop()
@@ -167,12 +187,6 @@ def go_back(event):
                 websocketConnection = None
         current_page = "menu"
         event.app.invalidate()
-
-@bindings.add("/")
-def focus_input(event):
-    if current_page == "room":
-        message_input.buffer.cursor_position = len(message_input.text)
-        event.app.layout.focus(message_input.window)
 
 app = Application(
     layout=Layout(
@@ -201,6 +215,7 @@ async def videoLoop():
 
 async def main():
     asyncio.create_task(videoLoop())
+    asyncio.create_task(videoStreamLoop())
     await app.run_async()
     videoEngine.stop()
 
