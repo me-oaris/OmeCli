@@ -22,8 +22,6 @@ import datetime
 
 apiUrl = "ws://localhost:8765"
 
-
-richConsole = Console()
 bindings = KeyBindings()
 videoEngine = VideoEngine()
 
@@ -146,9 +144,9 @@ def get_page():
         terminalWidth = shutil.get_terminal_size().columns
         panelInnerWidth = max(20, ((terminalWidth - 2) // 2) - 6)
         yourframe = videoEngine.get_ascii_frame(targetWidth=panelInnerWidth)
-        return render_room(messages, yourFrame=yourframe, strangerFrame=strangerFrame)
+        return render_room(messages, yourFrame=yourframe, strangerFrame=strangerFrame, appSettings=appSettings)
     elif current_page == "about":
-        return render_about()
+        return render_about(appSettings)
     elif current_page == "settings":
         return render_settings(selectedSetting, appSettings)
 

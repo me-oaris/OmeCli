@@ -11,18 +11,30 @@ from prompt_toolkit.formatted_text import ANSI
 
 import shutil
 
-def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting for stranger..."):
-    headerLeft = Text()
-    headerLeft.append("OMECLI", style="bold white")
-    headerRight = Text()
-    headerRight.append("Anonymous Talk", style="dim white")
+def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting for stranger...", appSettings=None):
+    if appSettings is None:
+        appSettings = {"theme":"Dark Mode", "anon_display": True}
 
+    isCyber = appSettings.get("theme") == "Cyber Green"
+
+    headerStyle = "bold bright_green" if isCyber else "bold white"
+    youStyle = "bright_green" if isCyber else "bright_cyan"
+    youBorder = "bright_green" if isCyber else "bright_blue"
+    strangerStyle = "green" if isCyber else "bright_green"
+    strangerBorder = "green" if isCyber else "bright_white"
+    chatBorder = "bright_green" if isCyber else "bright_white"
+
+    headerLeft = Text()
+    headerLeft.append("OMECLI", style=headerStyle)
+    headerRight = Text()
+    headerRight.append("Anonymous Talk" if appSettings.get("anon_display") else "Public Talk", style="dim white")
+    
     header = Columns(
         [headerLeft,headerRight],
         expand=True
     )
 
-    youContent = Text(yourFrame, style="bright_cyan")
+    youContent = Text(yourFrame, style=youStyle)
 
     you = Panel(
         Align.center(
@@ -30,20 +42,20 @@ def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting 
             vertical = "middle"
         ),
         title="You",
-        border_style="bright_blue",
+        border_style=youBorder,
         box=box.SQUARE,
         height=16,
         expand=True
     )
 
-    strangerContent = Text(strangerFrame, style="bright_green")
+    strangerContent = Text(strangerFrame, style=strangerStyle)
     stranger = Panel(
         Align.center(
             strangerContent,
             vertical = "middle"
         ),
         title="Stranger",
-        border_style="bright_green",
+        border_style=strangerBorder,
         box=box.SQUARE,
         height=16,
         expand=True
@@ -64,7 +76,13 @@ def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting 
     if messages:
         maxMessages = 3
         for message in messages[-maxMessages:]:
-            chat_text.append(f"{message}\n", style="bright_blue")
+            if message.startswith("You:"):
+                msgStyle = "bold bright_green" if isCyber else "bright_blue"
+            elif message.startswith("Stranger:"):
+                msgStyle = "green" if isCyber else "bright_green"
+            else:
+                msgStyle = "dim bright_green" if isCyber else "dim yellow"
+            chat_text.append(f"{message}\n", style=msgStyle)
     else:
         chat_text.append(
             "Your conversation will appear here...",
@@ -75,7 +93,7 @@ def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting 
         chat_text,
         title="Conversation",
         title_align="left",
-        border_style="bright_white",
+        border_style=chatBorder,
         box=box.SQUARE,
         height=7,
         padding=(1,2),

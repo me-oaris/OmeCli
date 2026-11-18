@@ -8,12 +8,21 @@ import shutil
 from io import StringIO
 from prompt_toolkit.formatted_text import ANSI
 
-def render_about():
-    title_text = Text("About OmeCli", style="bold cyan")
+def render_about(appSettings=None):
+    if appSettings is None:
+        appSettings = {"theme" : "Dark Mode"}
+
+    isCyber = appSettings.get("theme") == "Cyber Green"
+
+    titleStyle = "bold bright_green" if isCyber else "bold cyan"
+    borderColor = "bright_green" if isCyber else "bright_blue"
+    featureColor = "bright_green" if isCyber else "bright_green"
+
+    title_text = Text("About OmeCli", style=titleStyle)
 
     body_text = Text()
-    body_text.append("OmeCli is a terminal based anonymous talk room, inspired by Omegle\nPurely built in Python.", style="bold white")
-    body_text.append("Key Features:\n", style="bold bright green")
+    body_text.append("OmeCli is a terminal based anonymous talk room, inspired by Omegle\nPurely built in Python.\n", style="bold white")
+    body_text.append("Key Features:\n", style=f"bold {featureColor}")
     body_text.append("> Fast, lightweight and fully keyboard controllled\n",style="dim white")
     body_text.append("> ASCII video engine and chat support\n", style="dim white")
     body_text.append("> Responsive layout\n", style="dim white")
@@ -28,7 +37,7 @@ def render_about():
         content,
         title="OmeCli v0.0.1",
         title_align="left",
-        border_style="bright_blue",
+        border_style=borderColor,
         box=box.SQUARE_DOUBLE_HEAD,
         padding=(2,4),
         expand=True

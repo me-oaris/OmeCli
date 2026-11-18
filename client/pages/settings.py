@@ -11,7 +11,15 @@ from io import StringIO
 from prompt_toolkit.formatted_text import ANSI
 
 def render_settings(selectedSetting, settings):
-    titleText = Text("OmeCli Settings", style="bold yellow")
+    isCyber = settings.get("theme") == "Cyber Green"
+
+    titleStyle = "bold bright_green" if isCyber else "bold yellow"
+    outerBorder = "bright_green" if isCyber else "yellow"
+    selectedBorder = "bright_green" if isCyber else "bright_yellow"
+    selecteBg = "#00FF66" if isCyber else "#3A3012"
+    selectedFg = "#000000" if isCyber else "white"
+
+    titleText = Text("OmeCli Settings", style=titleStyle)
 
     options = [
         f"Theme: {settings['theme']}",
@@ -26,11 +34,11 @@ def render_settings(selectedSetting, settings):
         is_selected = (selectedSetting == i)
         settingPanel.append(
             Panel(
-                Align.center(Text(opt, style="bold white")),
-                border_style="bright_yellow" if  is_selected  else "dim white",
-                box=box.SQUARE_DOUBLE_HEAD,
+                Align.center(Text(opt, style=f"bold {selectedFg if is_selected else 'white'}")),
+                border_style= selectedBorder if  is_selected  else "dim white",
+                box= box.SQUARE_DOUBLE_HEAD,
                 padding=(0,4),
-                style=Style(bgcolor="#3A3012" if is_selected else "#0D1117"),
+                style= Style(bgcolor=selecteBg if is_selected else "#0D1117"),
                 expand=True
             )
         )
@@ -45,7 +53,7 @@ def render_settings(selectedSetting, settings):
         contentGroup,
         title="Preferences",
         title_align="left",
-        border_style="yellow",
+        border_style=outerBorder,
         box=box.SQUARE_DOUBLE_HEAD,
         padding=(1,2),
         expand=True
