@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omecli"
+version = "0.0.1"
+description = "An anonymous Omegle clone made for the command line with real-time ASCII video streaming"
+readme = "README.md"
+authors = [
+    { name = "Sakxem" ,email = "sakxem@duck.com"}
+]
+requires-python = ">=3.8"
+dependencies = [
+    "prompt-toolkit>=3.0.0",
+    "rich>=13.0.0",
+    "websockets>=10.0.0",
+    "opencv-python>=4.0.0"
+]
+
+[project.scripts]
+omecli = "client.main:run"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["client*"]

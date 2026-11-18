@@ -21,7 +21,7 @@ import json
 import datetime
 import os
 
-apiUrl = "ws://localhost:8765"
+apiUrl = "wss://omecli.sakxem.xyz"
 configFile = "config.json"
 
 bindings = KeyBindings()
@@ -235,8 +235,10 @@ def handle_enter(event):
             saveSettings()
         elif selectedSetting == 1:
             appSettings['anon_display'] = not appSettings['anon_display']
+            saveSettings()
         elif selectedSetting == 2:
             appSettings['save_history'] = not appSettings['save_history']
+            saveSettings()
         elif selectedSetting == 3:
             current_page = "menu"
     event.app.invalidate()
@@ -285,5 +287,8 @@ async def main():
     await app.run_async()
     videoEngine.stop()
 
-if __name__ == "__main__":
+def run():
     asyncio.run(main())
+
+if __name__ == "__main__":
+    run()
