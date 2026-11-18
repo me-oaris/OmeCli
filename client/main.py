@@ -43,14 +43,46 @@ appSettings = {
     "save_history": False
 }
 
+async def connectToServer():
+    global websocketConnection
+    try:
+        async with websockets.connect(apiUrl) as websocket:
+            websocketConnection = websocket
+            app.invalidate()
+
+            async for rawMessage in websocket:
+                data = json.loads(rawMessage)
+                msgType = data.get("type")
+
+                if msgType == "status":
+                    messages.append(data.get("message"))
+                elif msgType == "message":
+                    messages.append(f"Stranger: {data.get("text")}")
+                app.invalidate()
+
+    except (websockets.exceptions.ConnectionClosed, ConnectionRefusedError):
+        messages.append("Connection to server lost")
+        websocketConnection = None
+        app.invalidate()
+
 def send_message(buffer):
     global websocketConnection
     text = buffer.text.strip()
     if text:
         if text.lower() == "/next":
-            print("Skipping")
+            messages.append("You skipped the stranger")
+            if websocketConnection:
+                asyncio.create_task(websocketConnection.send(json.dumps({
+                    "type" : "skip"
+                })))
         else:
-            messages.append(f"You: {text}")
+            messages.append(f"{text}")
+            if websocketConnection:
+                asyncio.create_task(websocketConnection.send(json.dumps({
+                    "type" : "message",
+                    "text" : text
+                })))
+    buffer.text = ""
     app.invalidate()
 
 message_input = TextArea(
@@ -101,6 +133,10 @@ def handle_enter(event):
     if current_page == "menu":
         if selected == 0:
             current_page = "room"
+            messages.clear()
+            messages.append("Connecting to server ...")
+            asyncio.create_task(connectToServer())
+            event.app.layout.focus(message_input.window)
         elif selected == 1:
             current_page = "about"
         elif selected == 2:
@@ -126,6 +162,9 @@ def go_back(event):
     if current_page != "menu":
         if current_page == "room":
             videoEngine.stop()
+            if websocketConnection:
+                asyncio.create_task(websocketConnection.close())
+                websocketConnection = None
         current_page = "menu"
         event.app.invalidate()
 
