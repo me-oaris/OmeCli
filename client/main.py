@@ -16,6 +16,10 @@ from prompt_toolkit.layout.containers import Window, HSplit, ConditionalContaine
 from prompt_toolkit.filters import Condition
 import shutil
 import asyncio
+import websockets
+import json
+
+apiUrl = "ws://localhost:8765"
 
 
 richConsole = Console()
@@ -31,6 +35,7 @@ selected = 0
 selectedSetting = 0
 current_page = "menu"
 messages = []
+websocketConnection = None
 
 appSettings = {
     "theme": "Dark Mode",
@@ -39,10 +44,13 @@ appSettings = {
 }
 
 def send_message(buffer):
-    message = buffer.text.strip()
-    if message:
-        messages.append(message)
-    buffer.text = ""
+    global websocketConnection
+    text = buffer.text.strip()
+    if text:
+        if text.lower() == "/next":
+            print("Skipping")
+        else:
+            messages.append(f"You: {text}")
     app.invalidate()
 
 message_input = TextArea(
