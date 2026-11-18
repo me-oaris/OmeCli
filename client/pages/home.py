@@ -14,10 +14,32 @@ def render_home(selected, appSettings=None):
     if appSettings is None:
         appSettings = {"theme":"Dark Mode"}
     isCyber = appSettings.get("theme") ==  "Cyber Green"
+    isAmber = appSettings.get("theme") == "Amber Retro"
+    isSynthwave = appSettings.get("theme") == "Synthwave"
+    isDracula = appSettings.get("theme") == "Dracula"
 
-    bannerColor = "bright_green" if isCyber else "bright_cyan"
-    selectedBg = "#047230" if isCyber else "#123D2A"
-    selectedFg = "#000000" if isCyber else "#FFFFFF"
+    if isCyber:
+        bannerColor = "bright_green"
+        selectedBg = "#00FF66"
+        selectedFg = "#000000"
+    elif isAmber:
+        bannerColor = "bright_yellow"
+        selectedBg = "#FFB000"
+        selectedFg = "#000000"
+    elif isSynthwave:
+        bannerColor = "bright_magenta"
+        selectedBg = "#FF007F"
+        selectedFg = "#FFFFFF"
+    elif isDracula:
+        bannerColor = "bright_cyan"
+        selectedBg = "#8D93F9"
+        selectedFg = "#282A36"
+    else:
+        bannerColor = "bright_cyan"
+        selectedBg = "#123D2A"
+        selectedFg = "#FFFFFF"
+
+
     # Welcome Banner Part ;-;
     welcomeText = Text()
     versionText = Text()

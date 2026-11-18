@@ -16,13 +16,45 @@ def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting 
         appSettings = {"theme":"Dark Mode", "anon_display": True}
 
     isCyber = appSettings.get("theme") == "Cyber Green"
+    isAmber = appSettings.get("theme") == "Amber Retro"
+    isSynthwave = appSettings.get("theme") == "Synthwave"
+    isDracula = appSettings.get("theme") == "Dracula"
 
-    headerStyle = "bold bright_green" if isCyber else "bold white"
-    youStyle = "bright_green" if isCyber else "bright_cyan"
-    youBorder = "bright_green" if isCyber else "bright_blue"
-    strangerStyle = "green" if isCyber else "bright_green"
-    strangerBorder = "green" if isCyber else "bright_white"
-    chatBorder = "bright_green" if isCyber else "bright_white"
+    if isCyber:
+        headerStyle = "bold bright_green"
+        youStyle = "bright_green"
+        youBorder = "bright_green"
+        strangerStyle = "green"
+        strangerBorder = "green"
+        chatBorder = "bright_green"
+    elif isAmber:
+        headerStyle = "bold bright_yellow"
+        youStyle = "bright_yellow"
+        youBorder = "bright_yellow"
+        strangerStyle = "yellow"
+        strangerBorder = "yellow"
+        chatBorder = "bright_yellow"
+    elif isSynthwave:
+        headerStyle = "bold bright_magenta"
+        youStyle = "bright_magenta"
+        youBorder = "magenta"
+        strangerStyle = "pink1"
+        strangerBorder = "bright_magenta"
+        chatBorder = "magenta"
+    elif isDracula:
+        headerStyle = "bold #BD93F9"
+        youStyle = "#8BE9FD"
+        youBorder = "#BD93F9"
+        strangerStyle = "#50FA7B"
+        strangerBorder = "#8BE9FD"
+        chatBorder = "#BD93F9"
+    else:
+        headerStyle = "bold white"
+        youStyle = "bright_cyan"
+        youBorder = "bright_blue"
+        strangerStyle = "bright_green"
+        strangerBorder = "brighter_green"
+        chatBorder = "bright_white"
 
     headerLeft = Text()
     headerLeft.append("OMECLI", style=headerStyle)

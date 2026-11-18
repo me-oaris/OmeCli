@@ -110,6 +110,21 @@ def getDynamicStyle():
             "selected" : "fg:#000000 bg:#00FF66 bold",
             "normal" : "fg:#00FF66"
         })
+    elif appSettings.get("theme") == "Amber Retro":
+        return PTStyle.from_dict({
+            "selected" : "fg:#000000 bg:#FFB000 bold",
+            "normal" : "fg:#FFB000"
+        })
+    elif appSettings.get("theme") == "Synthwave":
+        return PTStyle.from_dict({
+            "selected" : "fg:#FFFFFF bg:#FF007F bold",
+            "normal" : "fg:#FF007F" 
+        })
+    elif appSettings.get("theme") == "Dracula":
+        return PTStyle.from_dict({
+            "selected" : "fg:#F8F8F2 bg:#BD93F9 bold",
+            "normal" : "fg:#8D93F9"
+        })
     else:
         return PTStyle.from_dict({
             "selected" : "fg:#FFFFFF bg:#123D2A bold",
@@ -190,7 +205,10 @@ def handle_enter(event):
             return
     elif current_page == "settings":
         if selectedSetting == 0:
-            appSettings["theme"] = "Cyber Green" if appSettings['theme'] == "Dark Mode" else 'Dark Mode'
+            themes = ["Dark Mode", "Cyber Green", "Amber Retro", "Synthwave", "Dracula"]
+            currentTheme = appSettings["theme"]
+            nextIndex = (themes.index(currentTheme) + 1) % len(themes)
+            appSettings["theme"] = themes[nextIndex]
             app.style = getDynamicStyle()
         elif selectedSetting == 1:
             appSettings['anon_display'] = not appSettings['anon_display']

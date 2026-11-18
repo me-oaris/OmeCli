@@ -12,12 +12,40 @@ from prompt_toolkit.formatted_text import ANSI
 
 def render_settings(selectedSetting, settings):
     isCyber = settings.get("theme") == "Cyber Green"
+    isAmber = settings.get("theme") == "Retro Amber"
+    isSynthwave = settings.get("theme") == "Synthwave"
+    isDracula = settings.get("theme") == "Dracula"
 
-    titleStyle = "bold bright_green" if isCyber else "bold yellow"
-    outerBorder = "bright_green" if isCyber else "yellow"
-    selectedBorder = "bright_green" if isCyber else "bright_yellow"
-    selecteBg = "#00FF66" if isCyber else "#3A3012"
-    selectedFg = "#000000" if isCyber else "white"
+    if isCyber:
+        titleStyle = "bold bright_green"
+        outerBorder = "bright_green"
+        selectedBorder = "bright_green"
+        selectedBg = "#00FF66"
+        selectedFg = "#000000"
+    elif isAmber:
+        titleStyle = "bold bright_yellow"
+        outerBorder = "bright_yellow"
+        selectedBorder = "bright_yellow"
+        selectedBg = "#FF8000"
+        selectedFg = "#000000"
+    elif isSynthwave:
+        titleStyle = "bold bright_magenta"
+        outerBorder = "magenta"
+        selectedBorder = "bright_magenta"
+        selectedBg = "#FF007F"
+        selectedFg = "#FFFFFF"
+    elif isDracula:
+        titleStyle = "bold #BD93F9"
+        outerBorder = "#8BE9FD"
+        selectedBorder = "#BD93F9"
+        selectedBg = "#8D93F9"
+        selectedFg = "#282A36"
+    else:
+        titleStyle = "bold yellow"
+        outerBorder = "yellow"
+        selectedBorder = "bright_yellow"
+        selectedBg = "#3A3012"
+        selectedFg = "white"
 
     titleText = Text("OmeCli Settings", style=titleStyle)
 
@@ -38,7 +66,7 @@ def render_settings(selectedSetting, settings):
                 border_style= selectedBorder if  is_selected  else "dim white",
                 box= box.SQUARE_DOUBLE_HEAD,
                 padding=(0,4),
-                style= Style(bgcolor=selecteBg if is_selected else "#0D1117"),
+                style= Style(bgcolor=selectedBg if is_selected else "#0D1117"),
                 expand=True
             )
         )

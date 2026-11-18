@@ -13,10 +13,30 @@ def render_about(appSettings=None):
         appSettings = {"theme" : "Dark Mode"}
 
     isCyber = appSettings.get("theme") == "Cyber Green"
+    isAmber = appSettings.get("theme") == "Amber Retro"
+    isSynthwave = appSettings.get("theme") == "Synthwave"
+    isDracula = appSettings.get("theme") == "Dracula"
 
-    titleStyle = "bold bright_green" if isCyber else "bold cyan"
-    borderColor = "bright_green" if isCyber else "bright_blue"
-    featureColor = "bright_green" if isCyber else "bright_green"
+    if isCyber:
+        titleStyle="bold bright_green"
+        borderColor="bright_green"
+        featureColor = "bright_green"
+    elif isAmber:
+        titleStyle="bold bright_yellow"
+        borderColor="bright_yellow"
+        featureColor = "bright_yellow"
+    elif isSynthwave:
+        titleStyle="bold bright_magenta"
+        borderColor = "magenta"
+        featureColor = "bright_magenta"
+    elif isDracula:
+        titleStyle = "bold #BD93F9"
+        borderColor = "#8BE9FD"
+        featureColor = "#BD93F9"
+    else:
+        titleStyle="bold cyan"
+        borderColor="bright_blue"
+        featureColor="bright_green"
 
     title_text = Text("About OmeCli", style=titleStyle)
 
