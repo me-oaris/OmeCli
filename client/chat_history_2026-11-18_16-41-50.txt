@@ -1,3 +1,0 @@
-Connecting to server ...
-Connection to server lost
-You: hello this is so peak lol
