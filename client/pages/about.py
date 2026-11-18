@@ -15,7 +15,7 @@ def render_about():
     body_text.append("OmeCli is a terminal based anonymous talk room, inspired by Omegle\nPurely built in Python.", style="bold white")
     body_text.append("Key Features:\n", style="bold bright green")
     body_text.append("> Fast, lightweight and fully keyboard controllled\n",style="dim white")
-    body_text.append("> ASCII video engine and chat support", style="dim white")
+    body_text.append("> ASCII video engine and chat support\n", style="dim white")
     body_text.append("> Responsive layout\n", style="dim white")
     body_text.append("Press [ESC] to return to the main menu",style="bright yellow")
 

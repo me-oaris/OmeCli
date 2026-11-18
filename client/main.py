@@ -2,6 +2,7 @@ from pages.home import render_home
 from pages.room import render_room
 from pages.about import render_about
 from pages.settings import render_settings
+from video.engine import VideoEngine
 from rich.console import Console
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
@@ -13,10 +14,13 @@ from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.widgets import TextArea
 from prompt_toolkit.layout.containers import Window, HSplit, ConditionalContainer
 from prompt_toolkit.filters import Condition
+import shutil
+import asyncio
 
 
 richConsole = Console()
 bindings = KeyBindings()
+videoEngine = VideoEngine()
 
 style = PTStyle.from_dict({
     "selected": "fg:#FFFFFF bg:#123D2A bold",
@@ -54,7 +58,10 @@ def get_page():
     if current_page == "menu":  
         return render_home(selected)
     elif current_page == "room":
-        return render_room(messages)
+        terminalWidth = shutil.get_terminal_size().columns
+        panelInnerWidth = max(20, ((terminalWidth - 2) // 2) - 6)
+        frame = videoEngine.get_ascii_frame(targetWidth=panelInnerWidth)
+        return render_room(messages, yourFrame=frame)
     elif current_page == "about":
         return render_about()
     elif current_page == "settings":
@@ -109,6 +116,8 @@ def handle_enter(event):
 def go_back(event):
     global current_page
     if current_page != "menu":
+        if current_page == "room":
+            videoEngine.stop()
         current_page = "menu"
         event.app.invalidate()
 
@@ -137,7 +146,16 @@ app = Application(
     erase_when_done=True
 )
 
-menu = app.run()
+async def videoLoop():
+    while True:
+        if current_page == "room":
+            app.invalidate()
+        await asyncio.sleep(1 / 15)
 
-if menu is None:
-    exit()
+async def main():
+    asyncio.create_task(videoLoop())
+    await app.run_async()
+    videoEngine.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())

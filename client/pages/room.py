@@ -11,7 +11,7 @@ from prompt_toolkit.formatted_text import ANSI
 
 import shutil
 
-def render_room(messages):
+def render_room(messages, yourFrame="Starting Camera.."):
 
     headerLeft = Text()
     headerLeft.append("OMECLI", style="bold white")
@@ -23,9 +23,11 @@ def render_room(messages):
         expand=True
     )
 
+    youContent = Text(yourFrame, style="bright_cyan")
+
     you = Panel(
         Align.center(
-            Text("You", style="dim white"),
+            youContent,
             vertical = "middle"
         ),
         title="You",
