@@ -53,7 +53,7 @@ def render_room(messages, yourFrame="Starting Camera..", strangerFrame="Waiting 
         youStyle = "bright_cyan"
         youBorder = "bright_blue"
         strangerStyle = "bright_green"
-        strangerBorder = "brighter_green"
+        strangerBorder = "bright_green"
         chatBorder = "bright_white"
 
     headerLeft = Text()
