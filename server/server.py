@@ -54,11 +54,18 @@ async def handler(websocket):
                                         "type" : "message",
                                         "text" : data.get("text")
                                     }))
+                            elif msgType == "video":
+                                if peerSocket in pairs:
+                                    await peerSocket.send(json.dumps({
+                                        "type" : "video",
+                                        "frame" : data.get("frame")
+                                    }))
+                                
                             elif msgType == "skip":
                                 pairs.pop(websocket, None)
                                 if peerSocket in pairs:
                                     pairs.pop(peerSocket, None)
-                                    await peerSocket.sendZ(json.dumps({
+                                    await peerSocket.send(json.dumps({
                                         "type" : "status",
                                         "message" : "Stranger has disconnected. Finding a new stranger..."
                                     }))
