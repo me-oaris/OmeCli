@@ -1,63 +1,39 @@
 import cv2
 import numpy as np
-import os
-import shutil
-import sys
-import time
 
-os.system("")
+ASCII_CHARS = np.asarray(list(" .:-=+*#%@"))
 
-ASCII_CHARS = np.array(list(" .:-=+*#%@"))
+class VideoEngine:
+    def __init__(self, cameraIndex=0):
+        self.cameraIndex = cameraIndex
+        self.cap = None
 
-def frameToAscii(frame, targetWidth=60):
-    frame = cv2.flip(frame,1)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    def start(self):
+        if self.cap is None or not self.cap.isOpened():
+            self.cap = cv2.VideoCapture(self.cameraIndex)
 
-    origHeight, origWidth = gray.shape
-    aspectRatio = origHeight / origWidth
+    def stop(self):
+        if self.cap is not None and self.cap.isOpened():
+            self.cap.release()
+            self.cap = None
 
-    targetHeight = int(targetWidth * aspectRatio * 0.5)
+    def get_ascii_frame(self, targetWidth=50):
+        if self.cap is None or not self.cap.isOpened():
+            self.start()
 
-    resized = cv2.resize(gray, (targetWidth, targetHeight), interpolation=cv2.INTER_AREA)
-    indices = (resized / 255.0 * (len(ASCII_CHARS) - 1)).astype(int)
-    asciiMatrix = ASCII_CHARS[indices]
+        ret, frame = self.cap.read()
+        if not ret or frame is None:
+            return "Starting Camera"
 
-    return "\n".join("".join(row) for row in asciiMatrix)
+        frame = cv2.flip(frame, 1)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-def asciiCamera():
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("Failed to open camera")
-        return
+        origHeight, origWidth = gray.shape
+        aspectRatio = origHeight / origWidth
+        targetHeight = max(5, int(targetWidth * aspectRatio * 0.5))
 
-    sys.stdout.write("\033[?25l")
-    sys.stdout.flush()
+        resized = cv2.resize(gray, (targetWidth, targetHeight), interpolation=cv2.INTER_AREA)
+        indices = (resized / 255.0 * (len(ASCII_CHARS) - 1)).astype(int)
+        asciiMatrix = ASCII_CHARS[indices]
 
-    try:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            cols, rows = shutil.get_terminal_size()
-
-            width = min(70, max(20, cols -6))
-
-            asciiArt = frameToAscii(frame, targetWidth=width)
-
-            sys.stdout.write("\033[H" + asciiArt)
-            sys.stdout.flush()
-
-            time.sleep(1 / 20)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        cap.release()
-        sys.stdout.write("\033[?25h]")
-        sys.stdout.flush()
-        os.system('cls' if os.name == "nt" else "clear")
-        print("Ascii Camera Intialized")
-
-if __name__ == "__main__":
-    os.system("cls" if os.name == "nt" else "clear")
-    asciiCamera()
+        return '\n'.join("".join(row) for row in asciiMatrix)
