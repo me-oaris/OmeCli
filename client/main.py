@@ -19,8 +19,10 @@ import asyncio
 import websockets
 import json
 import datetime
+import os
 
 apiUrl = "ws://localhost:8765"
+configFile = "config.json"
 
 bindings = KeyBindings()
 videoEngine = VideoEngine()
@@ -37,11 +39,31 @@ messages = []
 websocketConnection = None
 strangerFrame = "Waiting for stranger video..."
 
-appSettings = {
+defSettings = {
     "theme": "Dark Mode",
     "anon_display": True,
     "save_history": False
 }
+
+def loadSettings():
+    if os.path.exists(configFile):
+        try:
+            with open(configFile, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+                return {**defSettings, **saved}
+        except Exception:
+            pass
+    return defSettings.copy()
+
+def saveSettings():
+    try:
+        with open(configFile, "w", encoding="utf-8") as f:
+            json.dump(appSettings, f, indent=4)
+    except Exception:
+        pass
+
+appSettings = loadSettings()
+
 
 async def connectToServer():
     global websocketConnection, strangerFrame
@@ -210,6 +232,7 @@ def handle_enter(event):
             nextIndex = (themes.index(currentTheme) + 1) % len(themes)
             appSettings["theme"] = themes[nextIndex]
             app.style = getDynamicStyle()
+            saveSettings()
         elif selectedSetting == 1:
             appSettings['anon_display'] = not appSettings['anon_display']
         elif selectedSetting == 2:
